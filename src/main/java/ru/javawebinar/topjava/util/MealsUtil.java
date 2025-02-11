@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 public class MealsUtil {
 
-    public final static DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private static CopyOnWriteArrayList<Meal> MEAL_LIST = null;
 
     public static CopyOnWriteArrayList<Meal> getMealList() {
@@ -31,7 +31,7 @@ public class MealsUtil {
         return MEAL_LIST;
     }
 
-    public final static int CALORIES_PRE_DAY = 2000;
+    public static final int CALORIES_PRE_DAY = 2000;
 
     private static List<Meal> initMeals() {
 
