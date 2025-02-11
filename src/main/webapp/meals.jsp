@@ -1,7 +1,5 @@
-<%@ page import="java.util.List" %>
-<%@ page import="java.time.format.DateTimeFormatter" %>
-<%@ page import="ru.javawebinar.topjava.model.MealTo" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <html lang="ru">
 <head>
     <title>Meals</title>
@@ -12,7 +10,7 @@
 
         table {
             border-collapse: collapse;
-            width: 100%;
+            width: 700px;
             margin-top: 20px;
         }
 
@@ -47,25 +45,20 @@
         <th></th>
         <th></th>
     </tr>
-    <%
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-
-        List<MealTo> meals = (List<MealTo>) request.getAttribute("meals");
-        if (meals != null) {
-            for (MealTo meal : meals) {
-                String textColor = meal.isExcess() ? "green" : "red";
-    %>
-    <tr class="<%= textColor%>">
-        <td><%= meal.getDateTime().format(formatter) %></td>
-        <td><%= meal.getDescription() %></td>
-        <td><%= meal.getCalories() %></td>
-        <td>Update</td>
-        <td>Delete</td>
-    </tr>
-    <%
-            }
-        }
-    %>
+    <c:if test="${not empty meals}">
+        <c:forEach var="meal" items="${meals}">
+            <tr class="<c:choose>
+             <c:when test="${meal.excess}">red</c:when>
+             <c:when test="${not meal.excess}">green</c:when>
+        </c:choose>">
+                <td><c:out value="${meal.getDateTime().format(formatter)}"/></td>
+                <td><c:out value="${meal.getDescription()}"/></td>
+                <td><c:out value="${meal.getCalories()}"/></td>
+                <td>Update</td>
+                <td>Delete</td>
+            </tr>
+        </c:forEach>
+    </c:if>
 </table>
 </body>
 </html>
