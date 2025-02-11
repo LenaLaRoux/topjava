@@ -20,6 +20,7 @@ public class MealServlet extends HttpServlet {
         List<MealTo> mealTos = MealsUtil.filteredByStreams(meals, null, null, MealsUtil.CALORIES_PRE_DAY);
 
         request.setAttribute("meals", mealTos);
+        request.setAttribute("formatter", MealsUtil.FORMATTER);
 
         RequestDispatcher dispatcher = request.getRequestDispatcher("meals.jsp");
         dispatcher.forward(request, response);
