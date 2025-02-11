@@ -29,9 +29,9 @@ public class MealsUtil {
         return MEAL_LIST;
     }
 
-    public final static int CALORIES_PRE_DAY = 2000;
+    public static final int CALORIES_PRE_DAY = 2000;
 
-    public final static DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     private static List<Meal> initMeals() {
 
