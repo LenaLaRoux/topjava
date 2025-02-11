@@ -15,18 +15,18 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 public class MealsUtil {
-    private static CopyOnWriteArrayList<Meal> MEAL_LIST = null;
+    private static CopyOnWriteArrayList<Meal> mealList = null;
 
     public static CopyOnWriteArrayList<Meal> getMealList() {
-        if (MEAL_LIST == null) {
+        if (mealList == null) {
             List<Meal> meals = initMeals();
             synchronized (MealsUtil.class) {
-                if (MEAL_LIST == null) {
-                    MEAL_LIST = new CopyOnWriteArrayList<>(meals);
+                if (mealList == null) {
+                    mealList = new CopyOnWriteArrayList<>(meals);
                 }
             }
         }
-        return MEAL_LIST;
+        return mealList;
     }
 
     public static final int CALORIES_PRE_DAY = 2000;
