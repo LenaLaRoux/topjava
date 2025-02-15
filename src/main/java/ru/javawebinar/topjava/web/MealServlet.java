@@ -21,6 +21,7 @@ public class MealServlet extends HttpServlet {
 
         request.setAttribute("formatter", MealsUtil.FORMATTER);
         request.setAttribute("meals", mealTos);
+        request.setAttribute("formatter", MealsUtil.FORMATTER);
 
         RequestDispatcher dispatcher = request.getRequestDispatcher("meals.jsp");
         dispatcher.forward(request, response);

@@ -15,23 +15,23 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 public class MealsUtil {
-
-    public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-    private static CopyOnWriteArrayList<Meal> MEAL_LIST = null;
+    private static CopyOnWriteArrayList<Meal> mealList = null;
 
     public static CopyOnWriteArrayList<Meal> getMealList() {
-        if (MEAL_LIST == null) {
+        if (mealList == null) {
             List<Meal> meals = initMeals();
             synchronized (MealsUtil.class) {
-                if (MEAL_LIST == null) {
-                    MEAL_LIST = new CopyOnWriteArrayList<>(meals);
+                if (mealList == null) {
+                    mealList = new CopyOnWriteArrayList<>(meals);
                 }
             }
         }
-        return MEAL_LIST;
+        return mealList;
     }
 
     public static final int CALORIES_PRE_DAY = 2000;
+
+    public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     private static List<Meal> initMeals() {
 
@@ -45,6 +45,7 @@ public class MealsUtil {
                 new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 20, 0), "Ужин", 410)
         );
     }
+
 
     public static void main(String[] args) {
         List<Meal> meals = initMeals();
@@ -67,6 +68,6 @@ public class MealsUtil {
     }
 
     private static MealTo createTo(Meal meal, boolean excess) {
-        return new MealTo(meal.getDateTime(), meal.getDescription(), meal.getCalories(), excess);
+        return new MealTo(meal.getId(), meal.getDateTime(), meal.getDescription(), meal.getCalories(), excess);
     }
 }
