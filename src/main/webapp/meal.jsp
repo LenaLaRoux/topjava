@@ -41,11 +41,9 @@
 </head>
 <body>
 <h2>Add Meal</h2>
-<form method="POST" action='mealsedit' name="frmAddMeal">
-    <c:if test="${meal.id != null}">
-        Meal ID : <input type="text" readonly="readonly" name="id"
-                         value="<c:out value="${meal.id}" />"/> <br/>
-    </c:if>
+<form method="POST" action='meals' name="frmAddMeal">
+    <input type="hidden"  name="id"
+           value="<c:out value="${meal.id}" />"/>
     Date : <input
         type="datetime-local" name="dateTime"
         value="<c:out value="${meal.getDateTime().format(formatter)}"/>"/> <br/>
@@ -55,7 +53,7 @@
     Calories : <input
         type="number" name="calories"
         value="<c:out value="${meal.calories}" />"/> <br/>
-    <input type="submit" value="Submit"/>
+    <input type="submit" value="Save"/>
     <button onclick="window.history.back()" type="button">Cancel</button>
 </form>
 

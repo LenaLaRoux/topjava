@@ -7,22 +7,24 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class MealsUtil {
-    private static CopyOnWriteArrayList<Meal> mealList = null;
+    private static ConcurrentHashMap<Integer, Meal> mealList = null;
 
-    public static CopyOnWriteArrayList<Meal> getMealList() {
+    public static ConcurrentHashMap<Integer, Meal> getMealList() {
         if (mealList == null) {
-            List<Meal> meals = initMeals();
+            Map<Integer, Meal> meals = initMeals();
             synchronized (MealsUtil.class) {
                 if (mealList == null) {
-                    mealList = new CopyOnWriteArrayList<>(meals);
+                    mealList = new ConcurrentHashMap<>(meals);
                 }
             }
         }
@@ -31,11 +33,9 @@ public class MealsUtil {
 
     public static final int CALORIES_PRE_DAY = 2000;
 
-    public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private static Map<Integer, Meal> initMeals() {
 
-    private static List<Meal> initMeals() {
-
-        return Arrays.asList(
+        List<Meal> list = Arrays.asList(
                 new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 10, 0), "Завтрак", 500),
                 new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 13, 0), "Обед", 1000),
                 new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 20, 0), "Ужин", 500),
@@ -44,17 +44,29 @@ public class MealsUtil {
                 new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 13, 0), "Обед", 500),
                 new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 20, 0), "Ужин", 410)
         );
+
+        return list.stream().collect(Collectors.toMap(Meal::getId, Function.identity()));
     }
 
 
     public static void main(String[] args) {
-        List<Meal> meals = initMeals();
+        Map<Integer, Meal> meals = initMeals();
 
-        List<MealTo> mealsTo = filteredByStreams(meals, LocalTime.of(7, 0), LocalTime.of(12, 0), 2000);
+        List<MealTo> mealsTo = filteredByStreams(meals.values(), LocalTime.of(7, 0), LocalTime.of(12, 0), 2000);
         mealsTo.forEach(System.out::println);
     }
 
-    public static List<MealTo> filteredByStreams(List<Meal> meals, LocalTime startTime, LocalTime endTime, int caloriesPerDay) {
+    public static List<MealTo> filteredByStreams(Collection<Meal> meals, LocalTime startTime, LocalTime endTime, int caloriesPerDay) {
+        return filteredByStreams(meals,
+                caloriesPerDay,
+                (meal -> TimeUtil.isBetweenHalfOpen(meal.getTime(), startTime, endTime)));
+    }
+
+    public static List<MealTo> filteredByStreams(Collection<Meal> meals, int caloriesPerDay) {
+        return filteredByStreams(meals, caloriesPerDay, (meal -> true));
+    }
+
+    public static List<MealTo> filteredByStreams(Collection<Meal> meals, int caloriesPerDay, Predicate<Meal> filter) {
         Map<LocalDate, Integer> caloriesSumByDate = meals.stream()
                 .collect(
                         Collectors.groupingBy(Meal::getDate, Collectors.summingInt(Meal::getCalories))
@@ -62,7 +74,7 @@ public class MealsUtil {
                 );
 
         return meals.stream()
-                .filter(meal -> TimeUtil.isBetweenHalfOpen(meal.getTime(), startTime, endTime))
+                .filter(filter)
                 .map(meal -> createTo(meal, caloriesSumByDate.get(meal.getDate()) > caloriesPerDay))
                 .collect(Collectors.toList());
     }

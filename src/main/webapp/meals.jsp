@@ -56,23 +56,18 @@
         <th></th>
         <th></th>
     </tr>
-    <c:if test="${not empty meals}">
         <c:forEach var="meal" items="${meals}">
-            <tr class="<c:choose>
-             <c:when test="${meal.excess}">red</c:when>
-             <c:when test="${not meal.excess}">green</c:when>
-        </c:choose>">
-                <td><c:out value="${meal.getDateTime().format(formatter)}"/></td>
-                <td><c:out value="${meal.getDescription()}"/></td>
-                <td><c:out value="${meal.getCalories()}"/></td>
-                <td><p><a href="mealsedit?action=edit&id=${meal.id}">Update</a></p></td>
-                <td><p><a href="mealsedit?action=delete&id=${meal.id}">Delete</a></td>
+            <tr class="${meal.excess ? 'red' : 'green'}">
+                <td>${meal.getDateTime().format(formatter)}</td>
+                <td>${meal.getDescription()}</td>
+                <td>${meal.getCalories()}</td>
+                <td><p><a href="meals?action=edit&id=${meal.id}">Update</a></p></td>
+                <td><p><a href="meals?action=delete&id=${meal.id}">Delete</a></td>
             </tr>
         </c:forEach>
-    </c:if>
 
 </table>
-<p><a href="mealsedit?action=insert">
+<p><a href="meals?action=add">
     <button>Add Meal</button>
 </a></p>
 </body>
