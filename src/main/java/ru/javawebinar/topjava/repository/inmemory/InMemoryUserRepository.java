@@ -6,8 +6,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.UserRepository;
-import ru.javawebinar.topjava.util.UserUtil;
-import ru.javawebinar.topjava.util.exception.NotFoundException;
+import ru.javawebinar.topjava.util.MealsUtil;
 
 import java.util.Comparator;
 import java.util.List;
@@ -25,7 +24,7 @@ public class InMemoryUserRepository implements UserRepository {
     private final AtomicInteger counter = new AtomicInteger(0);
 
     {
-        UserUtil.users.forEach(this::save);
+        MealsUtil.users.forEach(this::save);
     }
 
     @Override
@@ -55,7 +54,7 @@ public class InMemoryUserRepository implements UserRepository {
     public List<User> getAll() {
         log.info("getAll");
         return userMap.values().stream()
-                .sorted(Comparator.comparing(User::getName).thenComparing(User::getId))
+                .sorted(Comparator.comparing(User::getName).thenComparing(User::getEmail))
                 .collect(Collectors.toList());
     }
 
@@ -64,7 +63,7 @@ public class InMemoryUserRepository implements UserRepository {
         log.info("getByEmail {}", email);
 
         if (!StringUtils.hasLength(email))
-            throw new NotFoundException("Email is not defined");
+            return null;
 
         return userMap.values().stream()
                 .parallel()

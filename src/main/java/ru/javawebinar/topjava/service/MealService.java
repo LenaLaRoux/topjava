@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
-import ru.javawebinar.topjava.to.MealTo;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -31,12 +30,12 @@ public class MealService {
         return checkNotFound(repository.get(id, userId), id);
     }
 
-    public List<MealTo> getAll(Integer userId, Integer calories) {
-        return new ArrayList<>(repository.getAll(userId, calories));
+    public List<Meal> getAll(Integer userId) {
+        return new ArrayList<>(repository.getAll(userId));
     }
 
-    public List<MealTo> getAllFiltered(Integer userId, Integer calories, LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime) {
-        return new ArrayList<>(repository.getAllFiltered(userId, calories, startDate, startTime, endDate, endTime));
+    public List<Meal> getAllFiltered(Integer userId, LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime) {
+        return new ArrayList<>(repository.getAllFiltered(userId, startDate, startTime, endDate, endTime));
     }
 
     public void update(Meal meal, Integer userId) {
