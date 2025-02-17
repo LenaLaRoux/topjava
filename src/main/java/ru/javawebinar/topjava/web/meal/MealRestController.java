@@ -10,7 +10,6 @@ import ru.javawebinar.topjava.to.MealTo;
 import ru.javawebinar.topjava.util.MealsUtil;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -37,15 +36,17 @@ public abstract class MealRestController {
         startTime = startTime == null ? LocalTime.MIN : startTime;
         endTime = endTime == null ? LocalTime.MAX : endTime;
 
-        List<Meal> meals = service.getAll(authUserId());
+        List<Meal> meals = service.getAllFiltered(authUserId(), startDate, startTime, endDate, endTime);
 
-        if (startDate != null && endDate != null) {
-            return MealsUtil.getFilteredTos(meals, Meal::getDateTime, authUserCaloriesPerDay(),
-                    LocalDateTime.of(startDate, startTime), LocalDateTime.of(endDate, endTime));
-        } else {
-            return MealsUtil.getFilteredTos(meals, Meal::getTime, authUserCaloriesPerDay(),
-                    startTime, endTime);
-        }
+        List<MealTo> mealTosDate = MealsUtil.getFilteredTos(meals, Meal::getDate,
+                authUserCaloriesPerDay(), startDate, endDate);
+
+        List<MealTo> mealTosTime = MealsUtil.getFilteredTos(meals, Meal::getTime,
+                authUserCaloriesPerDay(), startTime, endTime);
+
+        mealTosTime.retainAll(mealTosDate);
+
+        return mealTosTime;
     }
 
     public Meal get(Integer id) {
