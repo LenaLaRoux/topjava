@@ -3,6 +3,7 @@ package ru.javawebinar.topjava.repository.inmemory;
 import org.springframework.stereotype.Repository;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
+import ru.javawebinar.topjava.util.DateTimeUtil;
 import ru.javawebinar.topjava.util.MealsUtil;
 
 import java.time.LocalDate;
@@ -18,20 +19,20 @@ public class InMemoryMealRepository implements MealRepository {
     private final AtomicInteger counter = new AtomicInteger(0);
 
     {
-        Random rand = new Random();
-        MealsUtil.meals.forEach(meal -> save(meal, rand.nextInt(2) + 1));
+        MealsUtil.meals.forEach(meal -> save(meal, meal.getUserId()));
     }
 
     @Override
     public Meal save(Meal meal, int userId) {
+        meal.setUserId(userId);
+
         if (meal.isNew()) {
             meal.setId(counter.incrementAndGet());
-            meal.setUserId(userId);
             mealsMap.put(meal.getId(), meal);
             return meal;
         }
-
-        return isAuthorizedUserMeal(meal, userId) ?
+        Meal mealFound = mealsMap.get(meal.getId());
+        return isAuthorizedUserMeal(mealFound, userId) ?
                 mealsMap.computeIfPresent(meal.getId(), (id, oldMeal) -> meal) :
                 null;
     }
@@ -59,7 +60,14 @@ public class InMemoryMealRepository implements MealRepository {
                                      LocalTime fromTime,
                                      LocalDate toDate,
                                      LocalTime toTime) {
-        return getAll(userId);
+        List<Meal> meals = getAll(userId);
+
+        return meals.stream()
+                .filter(meal -> fromDate == null && toDate == null
+                        || DateTimeUtil.isBetweenHalfOpen(meal.getDate(), fromDate, toDate))
+                .filter(meal -> fromTime == null || toTime == null
+                        || DateTimeUtil.isBetweenHalfOpen(meal.getTime(), fromTime, toTime))
+                .collect(Collectors.toList());
     }
 
     private boolean isAuthorizedUserMeal(Meal meal, Integer userId) {

@@ -19,8 +19,8 @@ import static ru.javawebinar.topjava.web.SecurityUtil.authUserCaloriesPerDay;
 import static ru.javawebinar.topjava.web.SecurityUtil.authUserId;
 
 @Controller
-public abstract class MealRestController {
-    protected final Logger log = LoggerFactory.getLogger(getClass());
+public class MealRestController {
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     @Autowired
     private MealService service;
@@ -32,21 +32,8 @@ public abstract class MealRestController {
 
     public List<MealTo> getAllFiltered(LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime) {
         log.info("getAllFiltered");
-
-        startTime = startTime == null ? LocalTime.MIN : startTime;
-        endTime = endTime == null ? LocalTime.MAX : endTime;
-
         List<Meal> meals = service.getAllFiltered(authUserId(), startDate, startTime, endDate, endTime);
-
-        List<MealTo> mealTosDate = MealsUtil.getFilteredTos(meals, Meal::getDate,
-                authUserCaloriesPerDay(), startDate, endDate);
-
-        List<MealTo> mealTosTime = MealsUtil.getFilteredTos(meals, Meal::getTime,
-                authUserCaloriesPerDay(), startTime, endTime);
-
-        mealTosTime.retainAll(mealTosDate);
-
-        return mealTosTime;
+        return MealsUtil.getTos(meals, authUserCaloriesPerDay());
     }
 
     public Meal get(Integer id) {
@@ -56,6 +43,7 @@ public abstract class MealRestController {
 
     public Meal create(Meal meal) {
         log.info("create {}", meal);
+        meal.setUserId(authUserId());
         checkIsNew(meal);
         return service.create(meal, authUserId());
     }
