@@ -1,6 +1,10 @@
-CREATE SEQUENCE IF NOT EXISTS global_seq START WITH 100000;
+DROP TABLE IF EXISTS user_role;
+DROP TABLE IF EXISTS users;
+DROP SEQUENCE IF EXISTS global_seq;
 
-CREATE TABLE IF NOT EXISTS users
+CREATE SEQUENCE global_seq START WITH 100000;
+
+CREATE TABLE users
 (
     id               INTEGER PRIMARY KEY DEFAULT nextval('global_seq'),
     name             VARCHAR                           NOT NULL,
@@ -12,7 +16,7 @@ CREATE TABLE IF NOT EXISTS users
 );
 CREATE UNIQUE INDEX users_unique_email_idx ON users (email);
 
-CREATE TABLE IF NOT EXISTS user_role
+CREATE TABLE user_role
 (
     user_id INTEGER NOT NULL,
     role    VARCHAR NOT NULL,
