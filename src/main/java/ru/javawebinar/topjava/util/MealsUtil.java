@@ -30,13 +30,13 @@ public class MealsUtil {
     );
 
     public static final List<User> users = Arrays.asList(
-            new User(1, "Iva", "iva@mail.ru", "secret", Role.USER),
-            new User(2, "Mono", "mono@mail.ru", "secret", Role.USER),
-            new User(3, "Napi", "napi@mail.ru", "secret", Role.USER),
-            new User(4, "Schnappy", "schnappy@mail.ru", "secret", Role.USER),
-            new User(5, "Izzy", "izzy@mail.ru", "secret", Role.USER),
-            new User(6, "Polly", "polly@mail.ru", "secret", Role.USER),
-            new User(7, "Admin", "admin@mail.ru", "admin", Role.ADMIN)
+            new User(null, "Iva", "iva@mail.ru", "secret", Role.USER),
+            new User(null, "Mono", "mono@mail.ru", "secret", Role.USER),
+            new User(null, "Napi", "napi@mail.ru", "secret", Role.USER),
+            new User(null, "Schnappy", "schnappy@mail.ru", "secret", Role.USER),
+            new User(null, "Izzy", "izzy@mail.ru", "secret", Role.USER),
+            new User(null, "Polly", "polly@mail.ru", "secret", Role.USER),
+            new User(null, "Admin", "admin@mail.ru", "admin", Role.ADMIN)
     );
 
     public static List<MealTo> getTos(Collection<Meal> meals, int caloriesPerDay) {

@@ -31,8 +31,7 @@ public class InMemoryMealRepository implements MealRepository {
             mealsMap.put(meal.getId(), meal);
             return meal;
         }
-        Meal mealFound = mealsMap.get(meal.getId());
-        return isAuthorizedUserMeal(mealFound, userId) ?
+        return isAuthorizedUserMeal(meal.getId(), userId) ?
                 mealsMap.computeIfPresent(meal.getId(), (id, oldMeal) -> meal) :
                 null;
     }
@@ -61,18 +60,25 @@ public class InMemoryMealRepository implements MealRepository {
                                      LocalDate toDate,
                                      LocalTime toTime) {
         List<Meal> meals = getAll(userId);
-
-        return meals.stream()
-                .filter(meal -> fromDate == null && toDate == null
-                        || DateTimeUtil.isBetweenHalfOpen(meal.getDate(), fromDate, toDate))
-                .filter(meal -> fromTime == null || toTime == null
-                        || DateTimeUtil.isBetweenHalfOpen(meal.getTime(), fromTime, toTime))
+        List<Meal> filteredByDate = meals.stream()
+                .filter(meal -> DateTimeUtil.isBetweenHalfOpen(meal.getDate(), fromDate, toDate))
                 .collect(Collectors.toList());
+
+        return filteredByDate.stream()
+                .filter(meal -> DateTimeUtil.isBetweenHalfOpen(meal.getTime(), fromTime, toTime))
+                .collect(Collectors.toList());
+
+
     }
 
     private boolean isAuthorizedUserMeal(Meal meal, Integer userId) {
         return meal != null
                 && Objects.equals(meal.getUserId(), userId);
+    }
+
+    private boolean isAuthorizedUserMeal(Integer id, Integer userId) {
+        Meal mealFound = mealsMap.get(id);
+        return isAuthorizedUserMeal(mealFound, userId);
     }
 
     private List<Meal> getFilteredByUser(Collection<Meal> meals, Integer userId) {
