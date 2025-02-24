@@ -1,6 +1,5 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
 
     <!--
@@ -10,18 +9,12 @@
             <constructor-arg name="repository" ref="inmemoryUserRepository"/>
         </bean>
     -->
-    <context:component-scan base-package="ru.javawebinar.**.repository.jdbc"/>
 
+    <context:component-scan base-package="ru.javawebinar.topjava.repository.inmemory">
+        <context:exclude-filter type="assignable" expression="ru.javawebinar.topjava.repository.jdbc.JdbcMealRepository"/>
+    </context:component-scan>
     <context:component-scan base-package="ru.javawebinar.**.service"/>
 
     <context:component-scan base-package="ru.javawebinar.**.web"/>
-
-    <!--   <beans profile="test">
-           <context:component-scan base-package="ru.javawebinar.**.repository.jdbc">
-               <context:exclude-filter type="assignable" expression="ru.javawebinar.topjava.repository.jdbc.JdbcMealRepository"/>
-               <context:exclude-filter type="assignable" expression="ru.javawebinar.topjava.repository.jdbc.JdbcUserRepository"/>
-           </context:component-scan>
-           <context:component-scan base-package="ru.javawebinar.**.repository.inmemory"/>
-       </beans>-->
 
 </beans>
