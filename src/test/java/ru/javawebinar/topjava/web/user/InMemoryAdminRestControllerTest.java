@@ -1,5 +1,7 @@
 package ru.javawebinar.topjava.web.user;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
 import org.junit.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,8 +30,18 @@ public class InMemoryAdminRestControllerTest {
                 "classpath:spring/spring-db.xml"
         );
         log.info("\n{}\n", Arrays.toString(appCtx.getBeanDefinitionNames()));
+
+        setupLogger();
+
         controller = appCtx.getBean(AdminRestController.class);
         repository = appCtx.getBean(InMemoryUserRepository.class);
+    }
+    private static void setupLogger (){
+        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+        loggerContext.getLogger("ru.javawebinar.topjava.service.MealService").setLevel(Level.OFF);
+        loggerContext.getLogger("ru.javawebinar.topjava.service.UserService").setLevel(Level.OFF);
+        loggerContext.getLogger("ru.javawebinar.topjava.web.meal.MealRestController").setLevel(Level.OFF);
+        loggerContext.getLogger("ru.javawebinar.topjava.web.user.ProfileRestController").setLevel(Level.OFF);
     }
 
     @AfterClass

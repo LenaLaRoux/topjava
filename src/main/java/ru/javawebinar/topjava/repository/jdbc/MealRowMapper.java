@@ -14,7 +14,7 @@ public class MealRowMapper implements RowMapper<Meal> {
         meal.setId(rs.getInt("ID"));
         meal.setDescription(rs.getString("DESCRIPTION"));
         meal.setCalories(rs.getInt("CALORIES"));
-        meal.setDateTime(rs.getTimestamp("DATE").toLocalDateTime());
+        meal.setDateTime(rs.getTimestamp("MEAL_TIME").toLocalDateTime());
 
         return meal;
 

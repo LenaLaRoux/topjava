@@ -40,7 +40,7 @@ public class JdbcMealRepository implements MealRepository {
         MapSqlParameterSource map = new MapSqlParameterSource()
                 .addValue("id", meal.getId())
                 .addValue("userId", userId)
-                .addValue("date", meal.getDateTime())
+                .addValue("mealTime", meal.getDateTime())
                 .addValue("description", meal.getDescription())
                 .addValue("calories", meal.getCalories());
 
@@ -49,8 +49,8 @@ public class JdbcMealRepository implements MealRepository {
             meal.setId(newKey.intValue());
         } else {
             int updatedRowNum = namedParameterJdbcTemplate.update(
-                    "UPDATE MEALS SET user_id=:userId, date=:date, description=:description, " +
-                            "calories=:calories WHERE id=:id", map);
+                    "UPDATE MEALS SET meal_time=:mealTime, description=:description, calories=:calories" +
+                            " WHERE id=:id and user_id=:userId", map);
             if (updatedRowNum == 0)
                 return null;
         }
@@ -59,31 +59,27 @@ public class JdbcMealRepository implements MealRepository {
 
     @Override
     public boolean delete(int id, int userId) {
-        return jdbcTemplate.update("DELETE FROM meals WHERE id=?", id) != 0;
+        return jdbcTemplate.update("DELETE FROM meals WHERE id=? and user_id=?", id, userId) != 0;
     }
 
     @Override
     public Meal get(int id, int userId) {
-        List<Meal> meals = jdbcTemplate.query("SELECT * FROM meals WHERE id=?", ROW_MAPPER, id);
+        List<Meal> meals = jdbcTemplate.query("SELECT * FROM meals WHERE id=? and user_id=?",
+                ROW_MAPPER, id, userId);
         return DataAccessUtils.singleResult(meals);
     }
 
     @Override
     public List<Meal> getAll(int userId) {
-        return jdbcTemplate.query("SELECT * FROM meals WHERE user_id=? ORDER BY date", ROW_MAPPER, userId);
+        return jdbcTemplate.query("SELECT * FROM meals WHERE user_id=? ORDER BY meal_time", ROW_MAPPER, userId);
     }
 
     @Override
     public List<Meal> getBetweenHalfOpen(LocalDateTime startDateTime, LocalDateTime endDateTime, int userId) {
         String sqlQuery = "SELECT * FROM meals " +
                 "WHERE user_id=:userId " +
-                "AND (  " +
-                "    (:dateFrom IS NULL AND :dateTo IS NULL) OR  " +
-                "    (:dateFrom IS NOT NULL AND date >= :dateFrom AND :dateTo IS NULL) OR  " +
-                "    (:dateFrom IS NULL AND :dateTo IS NOT NULL AND date < :dateTo) OR  " +
-                "    (:dateFrom IS NOT NULL AND :dateTo IS NOT NULL AND date >= :dateFrom AND date < :dateTo)  " +
-                ")  " +
-                "ORDER BY date desc";
+                "AND  meal_time >= :dateFrom AND meal_time < :dateTo  " +
+                "ORDER BY meal_time desc";
         Map<String, Object> map = new HashMap<>();
         map.put("userId", userId);
         map.put("dateFrom", startDateTime);
