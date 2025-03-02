@@ -1,19 +1,42 @@
 package ru.javawebinar.topjava.model;
 
-import javax.persistence.FetchType;
-import javax.persistence.ManyToOne;
+import org.hibernate.validator.constraints.Range;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+@NamedQueries({
+        @NamedQuery(name = Meal.DELETE, query = "DELETE FROM Meal m WHERE m.id = :id AND m.user.id = :userId "),
+        @NamedQuery(name = Meal.BY_USER, query = "SELECT m FROM Meal m WHERE m.id = :id AND m.user.id = :userId "),
+        @NamedQuery(name = Meal.ALL_SORTED, query = "SELECT m FROM Meal m WHERE m.user.id = :userId ORDER BY m.dateTime "),
+})
+@Entity
+@Table(name = "meal")
 public class Meal extends AbstractBaseEntity {
+
+    public static final String DELETE = "Meal.delete";
+    public static final String BY_USER = "Meal.getByUser";
+    public static final String ALL_SORTED = "Meal.getAllSorted";
+    @Column(name = "date_time", nullable = false)
+    @NotNull
     private LocalDateTime dateTime;
 
+    @Column(name = "description", nullable = false)
+    @NotBlank
+    @Size(max = 1000)
     private String description;
 
+    @Column(name = "calories", nullable = false)
+    @Range(min = 0, max = 10000)
     private int calories;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private User user;
 
     public Meal() {
@@ -69,6 +92,7 @@ public class Meal extends AbstractBaseEntity {
     public void setUser(User user) {
         this.user = user;
     }
+
 
     @Override
     public String toString() {
