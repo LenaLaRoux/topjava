@@ -27,8 +27,24 @@ public class JpaMealRepository implements MealRepository {
             entityManager.persist(meal);
             return meal;
         } else {
-            return entityManager.merge(meal);
+            Meal persistMeal = get(meal.id(), userId);
+            if (persistMeal == null) {
+                return null;
+            }
+            copySrc(persistMeal, meal);
+            return entityManager.merge(persistMeal);
         }
+    }
+
+    private void copySrc(Meal dest, Meal src) {
+        dest.setDateTime(src.getDateTime());
+        dest.setDescription(src.getDescription());
+        dest.setCalories(src.getCalories());
+    }
+
+    private void setUserRef(Meal meal, int userId) {
+        User userRef = entityManager.getReference(User.class, userId);
+        meal.setUser(userRef);
     }
 
     @Override
@@ -58,14 +74,10 @@ public class JpaMealRepository implements MealRepository {
 
     @Override
     public List<Meal> getBetweenHalfOpen(LocalDateTime startDateTime, LocalDateTime endDateTime, int userId) {
-        return null;
-    }
-
-    private User getUserRef(int id) {
-        return entityManager.getReference(User.class, id);
-    }
-
-    private void setUserRef(Meal meal, int userId) {
-        meal.setUser(getUserRef(userId));
+        return entityManager.createNamedQuery(Meal.FILTER, Meal.class)
+                .setParameter("userId", userId)
+                .setParameter("from", startDateTime)
+                .setParameter("to", endDateTime)
+                .getResultList();
     }
 }

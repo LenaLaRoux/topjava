@@ -1,6 +1,8 @@
 package ru.javawebinar.topjava.service;
 
+import org.junit.AfterClass;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,8 @@ import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.assertThrows;
 import static ru.javawebinar.topjava.MealTestData.*;
@@ -28,9 +32,18 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
 @Ignore
 public class MealServiceTest {
+    private static final Map<String, Long> timeMap = new HashMap<>();
+
+
+    @Rule
+    public TimingEachTestRule eachTestRule = new TimingEachTestRule();
+
+    @Rule
+    public TimingStatisticsRule timingStatisticsRule = new TimingStatisticsRule(timeMap);
 
     @Autowired
     private MealService service;
+
 
     @Test
     public void delete() {
@@ -109,5 +122,19 @@ public class MealServiceTest {
     @Test
     public void getBetweenWithNullDates() {
         MEAL_MATCHER.assertMatch(service.getBetweenInclusive(null, null, USER_ID), meals);
+    }
+
+    @AfterClass
+    public static void printSummary() {
+        System.out.println("Test Execution Summary:");
+        for (Map.Entry<String, Long> entry : timeMap.entrySet()) {
+            System.out.println(rightPad(entry.getKey() + " (ms)", " ", 30) + " - " + entry.getValue());
+        }
+    }
+
+    private static String rightPad(String src, String ch, int length) {
+        int rightLength = length - src.length();
+        String rightPad = ch.repeat(rightLength);
+        return src + rightPad;
     }
 }
