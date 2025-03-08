@@ -1,10 +1,14 @@
 package ru.javawebinar.topjava.service;
 
-import org.junit.AfterClass;
-import org.junit.Ignore;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExternalResource;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
+import org.junit.runners.model.Statement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.test.context.ContextConfiguration;
@@ -13,6 +17,7 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
+import ru.javawebinar.topjava.web.user.InMemoryAdminRestControllerTest;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -30,16 +35,42 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 })
 @RunWith(SpringRunner.class)
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
-@Ignore
 public class MealServiceTest {
+
+    private static final Logger log = LoggerFactory.getLogger(InMemoryAdminRestControllerTest.class);
     private static final Map<String, Long> timeMap = new HashMap<>();
 
+    @ClassRule
+    public static final ExternalResource resource = new ExternalResource() {
+        @Override
+        protected void after() {
+            log.debug("Test Execution Summary:");
+            for (Map.Entry<String, Long> entry : timeMap.entrySet()) {
+                log.debug(rightPad(entry.getKey() + " (ms)", " ", 30) + " - " + entry.getValue());
+            }
+        }
+
+        private String rightPad(String src, String ch, int length) {
+            int rightLength = length - src.length();
+            String rightPad = ch.repeat(rightLength);
+            return src + rightPad;
+        }
+    };
 
     @Rule
-    public TimingEachTestRule eachTestRule = new TimingEachTestRule();
-
-    @Rule
-    public TimingStatisticsRule timingStatisticsRule = new TimingStatisticsRule(timeMap);
+    public TestRule timingStatisticsRule = (statement, description) -> new Statement() {
+        @Override
+        public void evaluate() throws Throwable {
+            long startTime = System.currentTimeMillis();
+            try {
+                statement.evaluate();
+            } finally {
+                long duration = System.currentTimeMillis() - startTime;
+                log.debug("Test duration (ms): " + duration);
+                timeMap.put(description.getMethodName(), duration);
+            }
+        }
+    };
 
     @Autowired
     private MealService service;
@@ -122,19 +153,5 @@ public class MealServiceTest {
     @Test
     public void getBetweenWithNullDates() {
         MEAL_MATCHER.assertMatch(service.getBetweenInclusive(null, null, USER_ID), meals);
-    }
-
-    @AfterClass
-    public static void printSummary() {
-        System.out.println("Test Execution Summary:");
-        for (Map.Entry<String, Long> entry : timeMap.entrySet()) {
-            System.out.println(rightPad(entry.getKey() + " (ms)", " ", 30) + " - " + entry.getValue());
-        }
-    }
-
-    private static String rightPad(String src, String ch, int length) {
-        int rightLength = length - src.length();
-        String rightPad = ch.repeat(rightLength);
-        return src + rightPad;
     }
 }
