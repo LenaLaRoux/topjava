@@ -1,6 +1,5 @@
 package ru.javawebinar.topjava.repository.datajpa;
 
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.stereotype.Repository;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.model.User;
@@ -37,7 +36,7 @@ public class DataJpaMealRepository implements MealRepository {
     }
 
     @Override
-    @EntityGraph(attributePaths = {"user"})
+    //@EntityGraph(attributePaths = {"user"})
     public Meal get(int id, int userId) {
         Optional<Meal> mealOpt = crudRepository.findById(id);
         if (mealOpt.isPresent()) {
