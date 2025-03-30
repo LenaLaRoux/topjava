@@ -19,10 +19,10 @@ public class JdbcUserServiceTest extends AbstractUserServiceTest {
 
     @Before
     public void checkProfile() {
-        Assume.assumeTrue(isJDBCProfile());
+        Assume.assumeTrue(isJdbcProfile());
     }
 
-    private boolean isJDBCProfile() {
+    private boolean isJdbcProfile() {
         String[] activeProfiles = environment.getActiveProfiles();
         return Arrays.asList(activeProfiles).contains(JDBC);
     }
