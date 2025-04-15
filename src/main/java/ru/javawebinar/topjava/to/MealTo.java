@@ -1,17 +1,30 @@
 package ru.javawebinar.topjava.to;
 
+import javax.validation.constraints.*;
 import java.beans.ConstructorProperties;
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-public class MealTo extends BaseTo {
+public class MealTo extends BaseTo implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
 
+    @NotNull
     private final LocalDateTime dateTime;
 
+    @NotNull
+    @Size(min = 2, max = 1000)
     private final String description;
 
+    @NotNull
+    @Digits(integer = 5, fraction = 0)
+    @Min(value = 0)
+    @Max(value = 10000)
     private final int calories;
 
+    @NotNull
     private final boolean excess;
 
     @ConstructorProperties({"id", "dateTime", "description", "calories", "excess"})

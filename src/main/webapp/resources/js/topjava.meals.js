@@ -20,11 +20,21 @@ function clearFilter() {
 $(function () {
     makeEditable(
         $("#datatable").DataTable({
+            "ajax": {
+                "url": userAjaxUrl,
+                "dataSrc": ""
+            },
             "paging": false,
             "info": true,
             "columns": [
                 {
-                    "data": "dateTime"
+                    "data": "dateTime",
+                    render: function(data, type, row) {
+                        if (type === "display") {
+                            return moment(data).format("MM-DD-YYYY HH:mm");
+                        }
+                        return data;
+                    }
                 },
                 {
                     "data": "description"
