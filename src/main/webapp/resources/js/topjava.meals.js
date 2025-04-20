@@ -21,7 +21,7 @@ $(function () {
     makeEditable(
         $("#datatable").DataTable({
             "ajax": {
-                "url": userAjaxUrl,
+                "url": mealAjaxUrl,
                 "dataSrc": ""
             },
             "paging": false,
@@ -31,7 +31,7 @@ $(function () {
                     "data": "dateTime",
                     render: function(data, type, row) {
                         if (type === "display") {
-                            return moment(data).format("MM-DD-YYYY HH:mm");
+                            return data.replace("T", " ");
                         }
                         return data;
                     }
@@ -43,12 +43,14 @@ $(function () {
                     "data": "calories"
                 },
                 {
-                    "defaultContent": "Edit",
-                    "orderable": false
+                    "orderable": false,
+                    "defaultContent": "",
+                    "render": renderEditBtn
                 },
                 {
-                    "defaultContent": "Delete",
-                    "orderable": false
+                    "orderable": false,
+                    "defaultContent": "",
+                    "render": renderDeleteBtn
                 }
             ],
             "order": [
@@ -56,7 +58,10 @@ $(function () {
                     0,
                     "desc"
                 ]
-            ]
+            ],
+            "createdRow": function (row, data, dataIndex) {
+                    $(row).attr("data-meal-excess", data.excess);
+            }
         })
     );
 });

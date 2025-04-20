@@ -24,32 +24,32 @@ public abstract class AbstractMealController {
     private MealService service;
 
     public Meal get(int id) {
-        int userId = SecurityUtil.safeGet().getId();
+        int userId = SecurityUtil.authUserId();
         log.info("get meal {} for user {}", id, userId);
         return service.get(id, userId);
     }
 
     public void delete(int id) {
-        int userId = SecurityUtil.safeGet().getId();
+        int userId = SecurityUtil.authUserId();
         log.info("delete meal {} for user {}", id, userId);
         service.delete(id, userId);
     }
 
     public List<MealTo> getAll() {
-        int userId = SecurityUtil.safeGet().getId();;
+        int userId = SecurityUtil.authUserId();;
         log.info("getAll for user {}", userId);
         return MealsUtil.getTos(service.getAll(userId), SecurityUtil.authUserCaloriesPerDay());
     }
 
     public Meal create(Meal meal) {
-        int userId = SecurityUtil.safeGet().getId();
+        int userId = SecurityUtil.authUserId();
         log.info("create {} for user {}", meal, userId);
         checkIsNew(meal);
         return service.create(meal, userId);
     }
 
     public void update(Meal meal, int id) {
-        int userId = SecurityUtil.safeGet().getId();
+        int userId = SecurityUtil.authUserId();
         log.info("update {} for user {}", meal, userId);
         assureIdConsistent(meal, id);
         service.update(meal, userId);
@@ -63,7 +63,7 @@ public abstract class AbstractMealController {
      */
     public List<MealTo> getBetween(@Nullable LocalDate startDate, @Nullable LocalTime startTime,
                                             @Nullable LocalDate endDate, @Nullable LocalTime endTime) {
-        int userId = SecurityUtil.safeGet().getId();
+        int userId = SecurityUtil.authUserId();
         log.info("getBetween dates({} - {}) time({} - {}) for user {}", startDate, endDate, startTime, endTime, userId);
 
         List<Meal> mealsDateFiltered = service.getBetweenInclusive(startDate, endDate, userId);
@@ -71,14 +71,14 @@ public abstract class AbstractMealController {
     }
 
     public void create(MealTo mealTo) {
-        int userId = SecurityUtil.safeGet().getId();
+        int userId = SecurityUtil.authUserId();
         log.info("create {}", mealTo);
         create(MealsUtil.createNewFromTo(mealTo));
         service.create(MealsUtil.createNewFromTo(mealTo), userId);
     }
 
     public void update(MealTo mealTo, int id) {
-        int userId = SecurityUtil.safeGet().getId();
+        int userId = SecurityUtil.authUserId();
         log.info("update {} with id={}", mealTo, id);
         assureIdConsistent(mealTo, id);
         service.update(mealTo, userId);

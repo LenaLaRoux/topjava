@@ -16,12 +16,6 @@ public class RootController {
     @Autowired
     private MealService mealService;
 
-    @GetMapping("/")
-    public String root() {
-        log.info("root");
-        return "redirect:meals";
-    }
-
     @GetMapping("/users")
     public String getUsers() {
         log.info("users");
