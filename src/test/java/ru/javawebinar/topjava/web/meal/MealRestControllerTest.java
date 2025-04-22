@@ -97,6 +97,15 @@ class MealRestControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    void createWithInvalidRs() throws Exception {
+        perform(MockMvcRequestBuilders.post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(userHttpBasic(user))
+                .content("{}".getBytes()))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void getAll() throws Exception {
         perform(MockMvcRequestBuilders.get(REST_URL)
                 .with(userHttpBasic(user)))

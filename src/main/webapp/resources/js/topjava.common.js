@@ -108,9 +108,25 @@ function failNoty(jqXHR) {
     closeNoty();
     var errorInfo = jqXHR.responseJSON;
     failedNote = new Noty({
-        text: `<span class='fa fa-lg fa-exclamation-circle'></span> &nbsp;${i18n['common.errorStatus']}: ${jqXHR.status}<br>${errorInfo.type}<br>${errorInfo.detail}`,
+        text: `<span class='fa fa-lg fa-exclamation-circle'></span> &nbsp;${
+            errorInfo.type === "VALIDATION_ERROR" || errorInfo.type === "DATA_ERROR" ?
+                i18n['common.validation'] + "<br>" + getLocalized(errorInfo.detail):
+                i18n['common.errorStatus'] + ": " + jqXHR.status + "<br>" + errorInfo.type + "<br>" + errorInfo.detail}`,
         type: "error",
         layout: "bottomRight"
     });
     failedNote.show()
+}
+
+function getLocalized (localStr){
+    var match = localStr.match(/\s([^ ]+)$/);
+
+    if (match) {
+        var found = match[1];
+        if (i18n.hasOwnProperty(found)){
+            return localStr.replace(found, i18n[found])
+        }
+    }
+
+    return localStr;
 }

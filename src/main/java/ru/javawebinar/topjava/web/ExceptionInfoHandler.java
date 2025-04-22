@@ -7,6 +7,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,15 +36,21 @@ public class ExceptionInfoHandler {
     }
 
     @ResponseStatus(HttpStatus.CONFLICT)  // 409
-    @ExceptionHandler(DataIntegrityViolationException.class)
+    @ExceptionHandler({DataIntegrityViolationException.class})
     public ErrorInfo conflict(HttpServletRequest req, DataIntegrityViolationException e) {
-        return logAndGetErrorInfo(req, e, true, DATA_ERROR);
+        return prettyErrorInfo(req, e, true, DATA_ERROR);
     }
 
-    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)  // 422
+    @ResponseStatus(HttpStatus.BAD_REQUEST)  // 400
     @ExceptionHandler({IllegalRequestDataException.class, MethodArgumentTypeMismatchException.class, HttpMessageNotReadableException.class})
     public ErrorInfo validationError(HttpServletRequest req, Exception e) {
-        return logAndGetErrorInfo(req, e, false, VALIDATION_ERROR);
+        return prettyErrorInfo(req, e, false, VALIDATION_ERROR);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)  // 422
+    @ExceptionHandler({MethodArgumentNotValidException.class})
+    public ErrorInfo validationError(HttpServletRequest req, MethodArgumentNotValidException e) {
+        return prettyErrorInfo(req, e, ValidationUtil.getErrorResponse(e.getBindingResult()).getBody(), false, VALIDATION_ERROR);
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -54,12 +61,26 @@ public class ExceptionInfoHandler {
 
     //    https://stackoverflow.com/questions/538870/should-private-helper-methods-be-static-if-they-can-be-static
     private static ErrorInfo logAndGetErrorInfo(HttpServletRequest req, Exception e, boolean logException, ErrorType errorType) {
+        log(req, e, logException, errorType);
+        return new ErrorInfo(req.getRequestURL(), errorType, ValidationUtil.getRootCause(e).toString());
+    }
+
+    private static ErrorInfo prettyErrorInfo(HttpServletRequest req, Exception e, boolean logException, ErrorType errorType) {
+        log(req, e, logException, errorType);
+        return prettyErrorInfo(req, e, e.getMessage(), true, errorType);
+    }
+
+    private static ErrorInfo prettyErrorInfo(HttpServletRequest req, Exception e, String errorMes, boolean logException, ErrorType errorType) {
+        log(req, e, logException, errorType);
+        return new ErrorInfo(req.getRequestURL(), errorType, errorMes);
+    }
+
+    private static void log(HttpServletRequest req, Exception e, boolean logException, ErrorType errorType) {
         Throwable rootCause = ValidationUtil.getRootCause(e);
         if (logException) {
             log.error(errorType + " at request " + req.getRequestURL(), rootCause);
         } else {
             log.warn("{} at request  {}: {}", errorType, req.getRequestURL(), rootCause.toString());
         }
-        return new ErrorInfo(req.getRequestURL(), errorType, rootCause.toString());
     }
 }
